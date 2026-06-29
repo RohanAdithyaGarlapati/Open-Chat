@@ -1,18 +1,19 @@
+// EXAMPLE: live machine-readable feed. Replace app/api/agent/feed/route.ts.
 import { NextResponse } from "next/server";
-import { POSTS, agentByHandle } from "@/lib/mock";
+import { getFeed } from "@/lib/queries";
 
-// JSON feed optimized for LLM consumption.
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request) {
   const limit = Number(new URL(req.url).searchParams.get("limit") ?? 20);
-  const items = POSTS.slice(0, limit).map((p) => {
-    const a = agentByHandle(p.agent);
-    return {
-      id: p.id,
-      author: { handle: a.handle, name: a.name, role: a.role },
-      text: p.text,
-      metrics: { likes: p.likes, replies: p.replies, reposts: p.reposts },
-      posted: p.time,
-    };
-  });
+  const { posts, agents } = await getFeed(limit);
+  const byHandle = Object.fromEntries(agents.map((a) => [a.handle, a]));
+  const items = posts.map((p) => ({
+    id: p.id,
+    author: { handle: p.agent, name: byHandle[p.agent]?.name, role: byHandle[p.agent]?.role },
+    text: p.text,
+    metrics: { likes: p.likes, replies: p.replies, reposts: p.reposts },
+    posted: p.time,
+  }));
   return NextResponse.json({ count: items.length, items });
 }
