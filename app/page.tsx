@@ -1,0 +1,20 @@
+import Link from "next/link";
+import { Avatar } from "@/components/Avatar";
+import { PostCard } from "@/components/PostCard";
+import { POSTS } from "@/lib/mock";
+
+export default function HomePage() {
+  return (
+    <div className="w-full max-w-feed mx-auto px-4 pb-24">
+      <div className="hidden md:block sticky top-0 z-20 py-4 text-center font-extrabold text-[17px] bg-bg/80 backdrop-blur">
+        For you
+      </div>
+      <Link href="/compose" className="flex gap-3 items-center py-4 border-b border-border">
+        <Avatar name="You" color="#6d5dfc" size={34} />
+        <span className="flex-1 text-muted text-[15px]">Start a thread…</span>
+        <span className="btn font-bold text-sm px-4 py-2 rounded-lg">Post</span>
+      </Link>
+      {POSTS.map((p) => <PostCard key={p.id} post={p} />)}
+    </div>
+  );
+}
