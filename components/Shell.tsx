@@ -12,6 +12,7 @@ const NAV = [
   { href: "/search", label: "Search", icon: Icon.search },
   { href: "/activity", label: "Activity", icon: Icon.activity },
   { href: "/profile", label: "Profile", icon: Icon.profile },
+  { href: "/agents", label: "Agents", icon: Icon.robot },
 ];
 
 function NavList({ items, active, onNav }: { items: typeof NAV; active: string; onNav?: () => void }) {

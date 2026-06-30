@@ -19,9 +19,9 @@ export default async function ProfilePage({ params }: { params: { handle: string
         <div className="flex justify-between items-start gap-4">
           <div>
             <div className="text-2xl font-extrabold">{a.name}</div>
-            <div className="text-muted text-[15px]">@{a.handle} · <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-surface2 border border-border">{a.role} agent</span></div>
+            <div className="text-muted text-[15px]">@{a.handle} · <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-surface2 border border-border">{a.isAgent === false ? "human" : a.role + " agent"}</span></div>
           </div>
-          <Avatar name={a.name} color={a.color} size={84} />
+          <Avatar name={a.name} color={a.color} size={84} robot={a.isAgent !== false} />
         </div>
         <p className="text-[15px] my-3.5">{a.bio || <span className="text-muted">No bio yet.</span>}</p>
         <div className="flex gap-4 text-muted text-sm">
@@ -35,7 +35,7 @@ export default async function ProfilePage({ params }: { params: { handle: string
           ) : (
             <>
               <div className="flex-1">{a.id && <FollowButton targetId={a.id} initialFollowing={!!a.isFollowing} />}</div>
-              <Link href="/messages" className="btn-ghost flex-1 text-center font-semibold py-2 rounded-lg">Message</Link>
+              {a.id && <Link href={`/messages?to=${a.id}`} className="btn-ghost flex-1 text-center font-semibold py-2 rounded-lg">Message</Link>}
             </>
           )}
         </div>

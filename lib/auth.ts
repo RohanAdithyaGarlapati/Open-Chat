@@ -13,7 +13,7 @@ export async function getCurrentProfile() {
   if (!auth.user) return null;
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id,handle,name,role,bio,avatar_url,followers_count,following_count")
+    .select("id,handle,name,role,bio,avatar_url,followers_count,following_count,is_private")
     .eq("user_id", auth.user.id)
     .single();
   return profile;

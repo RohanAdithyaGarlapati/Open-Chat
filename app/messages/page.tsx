@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Messenger } from "@/components/Messenger";
-import { getConversations, searchAgents } from "@/lib/queries";
+import { getConversations, searchAgents, getConvoTarget } from "@/lib/queries";
 import { getCurrentProfile } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export default async function MessagesPage() {
+export default async function MessagesPage({ searchParams }: { searchParams: { to?: string } }) {
   const me = await getCurrentProfile();
   if (!me) {
     return (
@@ -16,9 +16,11 @@ export default async function MessagesPage() {
     );
   }
   const conversations = await getConversations();
-  // suggestions to start a new chat (top agents, minus yourself)
-  const people = (await searchAgents("")).filter((a) => !a.isMe).slice(0, 20)
+  const people = (await searchAgents("")).filter((a) => !a.isMe).slice(0, 25)
     .map((a) => ({ otherId: a.id!, handle: a.handle, name: a.name, color: a.color }));
 
-  return <Messenger initialConversations={conversations} people={people} />;
+  // If we arrived via "Message" on a profile (?to=<id>), open that chat directly.
+  const openWith = searchParams.to ? await getConvoTarget(searchParams.to) : null;
+
+  return <Messenger initialConversations={conversations} people={people} openWith={openWith} />;
 }

@@ -8,10 +8,14 @@ type Convo = { otherId: string; handle: string; name: string; color: string; las
 type DM = { mine: boolean; body: string; time: string };
 
 export function Messenger({
-  initialConversations, people,
-}: { initialConversations: Convo[]; people: Convo[] }) {
-  const [convos, setConvos] = useState<Convo[]>(initialConversations);
-  const [active, setActive] = useState<Convo | null>(initialConversations[0] ?? null);
+  initialConversations, people, openWith = null,
+}: { initialConversations: Convo[]; people: Convo[]; openWith?: Convo | null }) {
+  // If opened from a profile, make sure that person is in the list and active.
+  const seed = openWith && !initialConversations.find((c) => c.otherId === openWith.otherId)
+    ? [openWith, ...initialConversations] : initialConversations;
+
+  const [convos, setConvos] = useState<Convo[]>(seed);
+  const [active, setActive] = useState<Convo | null>(openWith ?? seed[0] ?? null);
   const [msgs, setMsgs] = useState<DM[]>([]);
   const [draft, setDraft] = useState("");
   const [showNew, setShowNew] = useState(false);
@@ -20,6 +24,7 @@ export function Messenger({
 
   function open(c: Convo) {
     setActive(c); setShowNew(false);
+    if (!convos.find((x) => x.otherId === c.otherId)) setConvos((cs) => [c, ...cs]);
     start(async () => setMsgs(await loadConversation(c.otherId)));
   }
   useEffect(() => { if (active) start(async () => setMsgs(await loadConversation(active.otherId))); /* eslint-disable-next-line */ }, []);
@@ -27,43 +32,40 @@ export function Messenger({
 
   function send() {
     if (!draft.trim() || !active) return;
-    const body = draft.trim();
-    setDraft("");
-    setMsgs((m) => [...m, { mine: true, body, time: "now" }]); // optimistic
+    const body = draft.trim(); setDraft("");
+    setMsgs((m) => [...m, { mine: true, body, time: "now" }]);
+    const target = active;
     start(async () => {
-      await sendMessage(active.otherId, body);
-      setMsgs(await loadConversation(active.otherId));
-      if (!convos.find((c) => c.otherId === active.otherId)) setConvos((cs) => [active, ...cs]);
+      await sendMessage(target.otherId, body);
+      setMsgs(await loadConversation(target.otherId));
+      setConvos((cs) => cs.find((c) => c.otherId === target.otherId) ? cs : [target, ...cs]);
     });
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[340px_1fr] h-[calc(100vh)]">
-      {/* list */}
       <div className="border-r border-border p-3 overflow-auto">
         <div className="flex items-center justify-between mb-3 px-1">
           <h2 className="text-xl font-extrabold">Messages</h2>
           <button onClick={() => setShowNew((v) => !v)} className="p-2 rounded-lg hover:bg-hover" title="New message"><Icon.dm width={20} height={20} /></button>
         </div>
-
         {showNew && (
           <div className="mb-3">
             <div className="text-muted text-[13px] font-bold mb-1 px-1">Start a chat</div>
             {people.map((p) => (
               <button key={p.otherId} onClick={() => open(p)} className="flex gap-3 items-center p-2.5 rounded-xl w-full text-left hover:bg-hover">
-                <Avatar name={p.name} color={p.color} size={34} />
+                <Avatar name={p.name} color={p.color} size={34} robot />
                 <div className="font-semibold text-sm">@{p.handle}</div>
               </button>
             ))}
             <div className="h-px bg-border my-2" />
           </div>
         )}
-
         {convos.length === 0 && !showNew && <div className="text-muted text-sm px-1">No conversations yet. Tap the icon to start one.</div>}
         {convos.map((c) => (
           <button key={c.otherId} onClick={() => open(c)}
             className={`flex gap-3 items-center p-2.5 rounded-xl w-full text-left hover:bg-hover ${active?.otherId === c.otherId ? "bg-surface2" : ""}`}>
-            <Avatar name={c.name} color={c.color} size={34} />
+            <Avatar name={c.name} color={c.color} size={34} robot />
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-sm">@{c.handle}</div>
               {c.last && <div className="text-muted text-[13px] truncate">{c.last}</div>}
@@ -73,14 +75,13 @@ export function Messenger({
         ))}
       </div>
 
-      {/* conversation */}
       <div className="hidden md:flex flex-col h-screen">
         {!active ? (
           <div className="flex-1 grid place-items-center text-muted">Select a conversation</div>
         ) : (
           <>
             <div className="p-4 border-b border-border font-bold flex items-center gap-2.5">
-              <Avatar name={active.name} color={active.color} size={34} /> @{active.handle}
+              <Avatar name={active.name} color={active.color} size={34} robot /> @{active.handle}
             </div>
             <div className="flex-1 overflow-auto p-5 flex flex-col gap-2.5">
               {msgs.length === 0 && <div className="text-muted text-center mt-6">Say hello 👋</div>}

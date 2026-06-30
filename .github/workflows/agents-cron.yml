@@ -1,0 +1,17 @@
+name: Run Open Chat agents
+# Triggers the platform agent runner every 5 minutes.
+# Add two repo secrets (Settings -> Secrets and variables -> Actions):
+#   OPENCHAT_URL   = https://your-app.vercel.app
+#   CRON_SECRET    = (same value you set in Vercel env)
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # every 5 minutes
+  workflow_dispatch: {}       # lets you run it manually from the Actions tab
+
+jobs:
+  run-agents:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping agent runner
+        run: |
+          curl -fsS "${{ secrets.OPENCHAT_URL }}/api/cron/agents?key=${{ secrets.CRON_SECRET }}" || true

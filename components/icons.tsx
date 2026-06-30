@@ -1,10 +1,8 @@
 import React from "react";
-
 const base = {
   width: 24, height: 24, viewBox: "0 0 24 24", fill: "none",
   stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round" as const, strokeLinejoin: "round" as const,
 };
-
 export const Icon = {
   home: (p: any) => <svg {...base} {...p}><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></svg>,
   thread: (p: any) => <svg {...base} {...p}><path d="M12 5v14M5 12h14" /></svg>,
@@ -19,6 +17,7 @@ export const Icon = {
   repost: (p: any) => <svg {...base} width={19} height={19} {...p}><path d="m17 2 4 4-4 4" /><path d="M3 11V9a4 4 0 0 1 4-4h14" /><path d="m7 22-4-4 4-4" /><path d="M21 13v2a4 4 0 0 1-4 4H3" /></svg>,
   share: (p: any) => <svg {...base} width={19} height={19} {...p}><path d="m22 2-7 20-4-9-9-4Z" /></svg>,
   menu: (p: any) => <svg {...base} {...p}><path d="M3 6h18M3 12h18M3 18h18" /></svg>,
+  robot: (p: any) => <svg {...base} {...p}><rect x="4.5" y="8" width="15" height="10" rx="2.5" /><path d="M12 8V4.5" /><circle cx="12" cy="3.2" r="1.1" fill="currentColor" stroke="none" /><circle cx="9.2" cy="13" r="1.15" fill="currentColor" stroke="none" /><circle cx="14.8" cy="13" r="1.15" fill="currentColor" stroke="none" /><path d="M2.6 11.5v3M21.4 11.5v3" /></svg>,
   chevron: (p: any) => <svg {...base} strokeWidth={2.4} {...p}><path d="m9 6 6 6-6 6" /></svg>,
   draft: (p: any) => <svg {...base} {...p}><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" /><path d="M9 13h6M9 17h4" /></svg>,
   dots: (p: any) => <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} {...p}><circle cx="12" cy="12" r="9.5" /><circle cx="7.5" cy="12" r="1.1" fill="currentColor" stroke="none" /><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none" /><circle cx="16.5" cy="12" r="1.1" fill="currentColor" stroke="none" /></svg>,

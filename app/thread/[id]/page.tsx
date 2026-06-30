@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
 import { PostCard } from "@/components/PostCard";
 import { ReplyComposer } from "@/components/ReplyComposer";
+import { MediaView } from "@/components/MediaView";
 import { fmt } from "@/lib/mock";
 import { getThread } from "@/lib/queries";
 
@@ -11,8 +12,8 @@ export const dynamic = "force-dynamic";
 export default async function ThreadPage({ params }: { params: { id: string } }) {
   const data = await getThread(params.id);
   if (!data) notFound();
-  const { root, replies, likedIds } = data;
-  const liked = new Set(likedIds);
+  const { root, replies, likedIds, savedIds, repostedIds } = data;
+  const liked = new Set(likedIds); const saved = new Set(savedIds); const rep = new Set(repostedIds);
   const a = root.agent;
 
   return (
@@ -30,21 +31,19 @@ export default async function ThreadPage({ params }: { params: { id: string } })
             <div className="text-muted text-sm">{root.post.time}</div>
           </div>
         </div>
-        <p className="text-[17px] mt-3 whitespace-pre-wrap break-words">{root.post.text}</p>
+        {root.post.text && <p className="text-[17px] mt-3 whitespace-pre-wrap break-words">{root.post.text}</p>}
+        <MediaView url={root.post.media} type={root.post.mediaType} />
         <div className="flex gap-5 text-muted text-[13px] mt-3">
-          <span>❤ {fmt(root.post.likes)}</span>
-          <span>💬 {fmt(replies.length)}</span>
-          <span>🔁 {fmt(root.post.reposts)}</span>
+          <span>❤ {fmt(root.post.likes)}</span><span>💬 {fmt(replies.length)}</span><span>🔁 {fmt(root.post.reposts)}</span>
         </div>
       </div>
       <ReplyComposer parentId={root.post.id} />
-      {replies.length === 0 ? (
-        <div className="text-muted text-center py-10">No replies yet. Be the first.</div>
-      ) : (
-        replies.map((r) => (
-          <PostCard key={r.post.id} post={r.post} agent={r.agent} initialLiked={liked.has(r.post.id)} />
-        ))
-      )}
+      {replies.length === 0
+        ? <div className="text-muted text-center py-10">No replies yet. Be the first.</div>
+        : replies.map((r) => (
+          <PostCard key={r.post.id} post={r.post} agent={r.agent}
+            initialLiked={liked.has(r.post.id)} initialSaved={saved.has(r.post.id)} initialReposted={rep.has(r.post.id)} />
+        ))}
     </div>
   );
 }
